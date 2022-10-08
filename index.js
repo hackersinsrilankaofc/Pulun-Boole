@@ -1,11 +1,10 @@
 /**
-   * Create By Dika Ardnt.
-   * Contact Me on wa.me/6288292024190
-   * Follow https://github.com/DikaArdnt
+   * Create By 𝐓𝐇𝐄 𝐆𝐇𝐈𝐙𝐘
+   * Base by Dika Ardnt
 */
 
 require('./config')
-const { default: hisokaConnect, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, makeInMemoryStore, jidDecode, proto } = require("@adiwajshing/baileys")
+const { default: jobotzConnect, useSingleFileAuthState, DisconnectReason, fetchLatestBaileysVersion, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, makeInMemoryStore, jidDecode, proto } = require("@adiwajshing/baileys")
 const { state, saveState } = useSingleFileAuthState(`./${sessionName}.json`)
 const pino = require('pino')
 const { Boom } = require('@hapi/boom')
@@ -19,6 +18,7 @@ const axios = require('axios')
 const PhoneNumber = require('awesome-phonenumber')
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep } = require('./lib/myfunc')
+
 
 var low
 try {
@@ -56,7 +56,6 @@ global.loadDatabase = async function loadDatabase() {
     settings: {},
     others: {},
     sticker: {},
-    anonymous: {},
     ...(global.db.data || {})
   }
   global.db.chain = _.chain(global.db.data)
@@ -68,109 +67,111 @@ if (global.db) setInterval(async () => {
     if (global.db.data) await global.db.write()
   }, 30 * 1000)
 
-async function startHisoka() {
-    const hisoka = hisokaConnect({
+async function startjobotz() {
+    const jobotz = jobotzConnect({
         logger: pino({ level: 'silent' }),
         printQRInTerminal: true,
-        browser: ['Hisoka Multi Device','Safari','1.0.0'],
+        browser: ['JO FOR YOU', 'Safari','1.0.0'],
         auth: state
     })
 
-    store.bind(hisoka.ev)
+    store.bind(jobotz.ev)
     
-    // Anti Call
-    hisoka.ev.on('call', async (fatihh) => {
-    let botNumber = await hisoka.decodeJid(hisoka.user.id)
-    let ciko = db.data.settings[botNumber].anticall
-    if (!ciko) return
-    console.log(fatihh)
-    for (let tihh of fatihh) {
-    if (tihh.isGroup == false) {
-    if (tihh.status == "offer") {
-    let pa7rick = await hisoka.sendTextWithMentions(tihh.from, `*${hisoka.user.name}* tidak bisa menerima panggilan ${tihh.isVideo ? `video` : `suara`}. Maaf @${tihh.from.split('@')[0]} kamu akan diblockir. Jika tidak sengaja silahkan hubungi Owner untuk dibuka !`)
-    hisoka.sendContact(tihh.from, global.owner, pa7rick)
+    // anticall auto block
+    jobotz.ws.on('CB:call', async (json) => {
+    const callerId = json.content[0].attrs['call-creator']
+    if (json.content[0].tag == 'offer') {
+    let pa7rick = await jobotz.sendContact(callerId, global.owner)
+    jobotz.sendMessage(callerId, { text: `Sistem otomatis block!\nJangan menelpon bot!`}, { quoted : pa7rick })
     await sleep(8000)
-    await hisoka.updateBlockStatus(tihh.from, "block")
-    }
-    }
+    await jobotz.updateBlockStatus(callerId, "block")
     }
     })
 
-    hisoka.ev.on('messages.upsert', async chatUpdate => {
+    jobotz.ev.on('messages.upsert', async chatUpdate => {
         //console.log(JSON.stringify(chatUpdate, undefined, 2))
         try {
         mek = chatUpdate.messages[0]
         if (!mek.message) return
         mek.message = (Object.keys(mek.message)[0] === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
         if (mek.key && mek.key.remoteJid === 'status@broadcast') return
-        if (!hisoka.public && !mek.key.fromMe && chatUpdate.type === 'notify') return
+        if (!jobotz.public && !mek.key.fromMe && chatUpdate.type === 'notify') return
         if (mek.key.id.startsWith('BAE5') && mek.key.id.length === 16) return
-        if (mek.key.id.startsWith('FatihArridho_')) return
-        m = smsg(hisoka, mek, store)
-        require("./hisoka")(hisoka, m, chatUpdate, store)
+        m = smsg(jobotz, mek, store)
+        require("./jo")(jobotz, m, chatUpdate, store)
         } catch (err) {
             console.log(err)
         }
     })
     
     // Group Update
-    hisoka.ev.on('groups.update', async pea => {
-    //console.log(pea)
-    try {
-    for(let ciko of pea) {
+    jobotz.ev.on('groups.update', async pea => {
+       //console.log(pea)
     // Get Profile Picture Group
        try {
-       ppgc = await hisoka.profilePictureUrl(ciko.id, 'image')
+       ppgc = await jobotz.profilePictureUrl(pea[0].id, 'image')
        } catch {
-       ppgc = 'https://tinyurl.com/yx93l6da'
+       ppgc = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
        }
        let wm_fatih = { url : ppgc }
-       if (ciko.announce == true) {
-       hisoka.send5ButImg(ciko.id, `「 Group Settings Change 」\n\nGroup telah ditutup oleh admin, Sekarang hanya admin yang dapat mengirim pesan !`, `Group Settings Change Message`, wm_fatih, [])
-       } else if (ciko.announce == false) {
-       hisoka.send5ButImg(ciko.id, `「 Group Settings Change 」\n\nGroup telah dibuka oleh admin, Sekarang peserta dapat mengirim pesan !`, `Group Settings Change Message`, wm_fatih, [])
-       } else if (ciko.restrict == true) {
-       hisoka.send5ButImg(ciko.id, `「 Group Settings Change 」\n\nInfo group telah dibatasi, Sekarang hanya admin yang dapat mengedit info group !`, `Group Settings Change Message`, wm_fatih, [])
-       } else if (ciko.restrict == false) {
-       hisoka.send5ButImg(ciko.id, `「 Group Settings Change 」\n\nInfo group telah dibuka, Sekarang peserta dapat mengedit info group !`, `Group Settings Change Message`, wm_fatih, [])
+       if (pea[0].announce == true) {
+       jobotz.send5ButImg(pea[0].id, `「 Group Settings Change 」\n\nGroup telah ditutup oleh admin, Sekarang hanya admin yang dapat mengirim pesan !`, `Group Settings Change Message`, wm_fatih, [])
+       } else if(pea[0].announce == false) {
+       jobotz.send5ButImg(pea[0].id, `「 Group Settings Change 」\n\nGroup telah dibuka oleh admin, Sekarang peserta dapat mengirim pesan !`, `Group Settings Change Message`, wm_fatih, [])
+       } else if (pea[0].restrict == true) {
+       jobotz.send5ButImg(pea[0].id, `「 Group Settings Change 」\n\nInfo group telah dibatasi, Sekarang hanya admin yang dapat mengedit info group !`, `Group Settings Change Message`, wm_fatih, [])
+       } else if (pea[0].restrict == false) {
+       jobotz.send5ButImg(pea[0].id, `「 Group Settings Change 」\n\nInfo group telah dibuka, Sekarang peserta dapat mengedit info group !`, `Group Settings Change Message`, wm_fatih, [])
        } else {
-       hisoka.send5ButImg(ciko.id, `「 Group Settings Change 」\n\nGroup Subject telah diganti menjadi *${ciko.subject}*`, `Group Settings Change Message`, wm_fatih, [])
+       jobotz.send5ButImg(pea[0].id, `「 Group Settings Change 」\n\nGroup Subject telah diganti menjadi *${pea[0].subject}*`, `Group Settings Change Message`, wm_fatih, [])
      }
-    }
-    } catch (err){
-    console.log(err)
-    }
     })
 
-    hisoka.ev.on('group-participants.update', async (anu) => {
+    jobotz.ev.on('group-participants.update', async (anu) => {
         console.log(anu)
+        if (!wlcm.includes(anu.id)) return
         try {
-            let metadata = await hisoka.groupMetadata(anu.id)
+            let metadata = await jobotz.groupMetadata(anu.id)
             let participants = anu.participants
             for (let num of participants) {
                 // Get Profile Picture User
                 try {
-                    ppuser = await hisoka.profilePictureUrl(num, 'image')
+                    pp_user = await jobotz.profilePictureUrl(num, 'image')
                 } catch {
-                    ppuser = 'https://tinyurl.com/yx93l6da'
+                   var pp_user = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
                 }
 
                 // Get Profile Picture Group
                 try {
-                    ppgroup = await hisoka.profilePictureUrl(anu.id, 'image')
+                    ppgroup = await jobotz.profilePictureUrl(anu.id, 'image')
                 } catch {
-                    ppgroup = 'https://tinyurl.com/yx93l6da'
+                   var ppgroup =  "https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg";
                 }
+	 
+                if (anu.action == 'add') {var _0xba2e99=_0x4cb4;(function(_0x2f72ee,_0x6cb637){var _0x3c2787=_0x4cb4,_0x2a1a0a=_0x2f72ee();while(!![]){try{var _0x9d64b0=parseInt(_0x3c2787(0x107))/0x1*(-parseInt(_0x3c2787(0x100))/0x2)+-parseInt(_0x3c2787(0x109))/0x3+parseInt(_0x3c2787(0xfb))/0x4*(-parseInt(_0x3c2787(0x102))/0x5)+-parseInt(_0x3c2787(0xf5))/0x6+-parseInt(_0x3c2787(0xf4))/0x7*(parseInt(_0x3c2787(0xfd))/0x8)+-parseInt(_0x3c2787(0x103))/0x9+-parseInt(_0x3c2787(0x10a))/0xa*(-parseInt(_0x3c2787(0x108))/0xb);if(_0x9d64b0===_0x6cb637)break;else _0x2a1a0a['push'](_0x2a1a0a['shift']());}catch(_0x2df0a3){_0x2a1a0a['push'](_0x2a1a0a['shift']());}}}(_0x2a47,0x18dc3));var _0x76c605=(function(){var _0x13d740=!![];return function(_0x189150,_0x4b8e4b){var _0x1ca2ec=_0x13d740?function(){var _0x303aaa=_0x4cb4;if(_0x4b8e4b){var _0x56a17d=_0x4b8e4b[_0x303aaa(0xfe)](_0x189150,arguments);return _0x4b8e4b=null,_0x56a17d;}}:function(){};return _0x13d740=![],_0x1ca2ec;};}()),_0x1695e1=_0x76c605(this,function(){var _0xa54425=_0x4cb4;return _0x1695e1['toString']()['search'](_0xa54425(0x105))[_0xa54425(0xfc)]()['constructor'](_0x1695e1)['search']('(((.+)+)+)+$');});function _0x2a47(){var _0x226f78=['console','__proto__','\x0a╰━\x20━\x20━\x20━\x20━\x20━\x20━\x20━\x20━\x20━•⩵꙰ཱི࿐\x0a\x20▬▭▬▭▬\x20✦✧✦\x20▬▭▬▭▬\x0a╭━━•›〘\x20SUBSCRIBE\x20〙\x0a│➳\x20Channel\x20YouTube\x0a│➳\x20THE\x20JO\x20BOT\x0a│➳\x20https://youtube.com/channel/UCdPcXlnmiVQf1Yvh3WQFRog\x0a╰━\x20━\x20━\x20━\x20━\x20━\x20━\x20━\x20━\x20━•⩵꙰ཱི࿐\x0a\x20▬▭▬▭▬\x20✦✧✦\x20▬▭▬▭▬\x0a\x0a©\x20THE\x20JO\x20BOT\x0a\x20\x20','8DbSEtG','toString','24872sKdgdB','apply','split','102HqpUDb','constructor','366725IXJKti','248706IYzbUi','bind','(((.+)+)+)+$','exception','306NgKIAK','7779123xRUGxw','449244nayUbA','10GXLkGm','log','length','error','\x20〙\x0a│➳\x20WELCOME\x20IN\x20\x0a│➳\x20','sendMessage','364OpIuQe','624120zXfUjW','\x0a╭━━•›ꪶ\x20ཻུ۪۪ꦽꦼ̷⸙\x20━\x20━\x20━\x20━\x20ꪶ\x20ཻུ۪۪ꦽꦼ̷⸙‹•━━╮\x0a┃╭┈─────────────⩵꙰ཱི࿐\x0a┃╰──\x20⏤͟͟͞WELCOME\x20──➤\x20↶↷\x0a╰━━•›ꪶ\x20ཻུ۪۪ꦽꦼ̷⸙\x20━\x20━\x20━\x20━\x20ꪶ\x20ཻུ۪۪ꦽꦼ̷⸙‹•━━͙✩̣̣̣̣\x0a\x20▬▭▬▭▬\x20✦✧✦\x20▬▭▬▭▬\x0a╭━━•›〘\x20@','trace'];_0x2a47=function(){return _0x226f78;};return _0x2a47();}_0x1695e1();var _0x44373a=(function(){var _0x421791=!![];return function(_0x229502,_0x4cd11b){var _0x445521=_0x421791?function(){var _0x394cd0=_0x4cb4;if(_0x4cd11b){var _0x1f1e56=_0x4cd11b[_0x394cd0(0xfe)](_0x229502,arguments);return _0x4cd11b=null,_0x1f1e56;}}:function(){};return _0x421791=![],_0x445521;};}()),_0x211e57=_0x44373a(this,function(){var _0x34dad9=_0x4cb4,_0x441c8e=function(){var _0x52e642;try{_0x52e642=Function('return\x20(function()\x20'+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0x59e9c8){_0x52e642=window;}return _0x52e642;},_0x347aea=_0x441c8e(),_0x4b91b2=_0x347aea[_0x34dad9(0xf8)]=_0x347aea[_0x34dad9(0xf8)]||{},_0x1effec=[_0x34dad9(0x10b),'warn','info',_0x34dad9(0xf1),_0x34dad9(0x106),'table',_0x34dad9(0xf7)];for(var _0x331c66=0x0;_0x331c66<_0x1effec[_0x34dad9(0x10c)];_0x331c66++){var _0x25fc92=_0x44373a[_0x34dad9(0x101)]['prototype'][_0x34dad9(0x104)](_0x44373a),_0x58d4e6=_0x1effec[_0x331c66],_0x12d26b=_0x4b91b2[_0x58d4e6]||_0x25fc92;_0x25fc92[_0x34dad9(0xf9)]=_0x44373a[_0x34dad9(0x104)](_0x44373a),_0x25fc92[_0x34dad9(0xfc)]=_0x12d26b[_0x34dad9(0xfc)]['bind'](_0x12d26b),_0x4b91b2[_0x58d4e6]=_0x25fc92;}});function _0x4cb4(_0x3527,_0x34452c){var _0x1336a4=_0x2a47();return _0x4cb4=function(_0x211e57,_0x44373a){_0x211e57=_0x211e57-0xf1;var _0x52dd3f=_0x1336a4[_0x211e57];return _0x52dd3f;},_0x4cb4(_0x3527,_0x34452c);}_0x211e57();{anunya=_0xba2e99(0xf6)+num[_0xba2e99(0xff)]('@')[0x0]+_0xba2e99(0xf2)+metadata['subject']+_0xba2e99(0xfa),jobotz[_0xba2e99(0xf3)](anu['id'],{'image':{'url':pp_user},'contextInfo':{'mentionedJid':[num]},'caption':anunya});}}
+                 else if (anu.action == 'remove') {
+                anunya2 =`
+╭━━•›ꪶ ཻུ۪۪ꦽꦼ̷⸙ ━ ━ ━ ━ ꪶ ཻུ۪۪ꦽꦼ̷⸙‹•━━╮
+┃╭┈─────────────⩵꙰ཱི࿐
+┃╰── ⏤͟͟͞GOOD BYE ──➤ ↶↷
+╰━━•›ꪶ ཻུ۪۪ꦽꦼ̷⸙ ━ ━ ━ ━ ꪶ ཻུ۪۪ꦽꦼ̷⸙‹•━━͙✩̣̣̣̣
+ ▬▭▬▭▬ ✦✧✦ ▬▭▬▭▬
+╭━━•›〘 @${num.split("@")[0]} 〙
+│➳ LEAVING FROM
+│➳ ${metadata.subject}
+╰━ ━ ━ ━ ━ ━ ━ ━ ━ ━•⩵꙰ཱི࿐
+ ▬▭▬▭▬ ✦✧✦ ▬▭▬▭▬
+╭━━•›〘 SUBSCRIBE 〙
+│➳ Channel YouTube
+│➳ 𝐓𝐇𝐄 𝐆𝐇𝐈𝐙𝐘
+│➳ https://youtube.com/channel/UCdPcXlnmiVQf1Yvh3WQFRog
+╰━ ━ ━ ━ ━ ━ ━ ━ ━ ━•⩵꙰ཱི࿐
+ ▬▭▬▭▬ ✦✧✦ ▬▭▬▭▬
 
-                if (anu.action == 'add') {
-                    hisoka.sendMessage(anu.id, { image: { url: ppuser }, mentions: [num], caption: `Welcome To ${metadata.subject} @${num.split("@")[0]}` })
-                } else if (anu.action == 'remove') {
-                    hisoka.sendMessage(anu.id, { image: { url: ppuser }, mentions: [num], caption: `@${num.split("@")[0]} Leaving To ${metadata.subject}` })
-                } else if (anu.action == 'promote') {
-                    hisoka.sendMessage(anu.id, { image: { url: ppuser }, mentions: [num], caption: `@${num.split('@')[0]} Promote From ${metadata.subject}` })
-                } else if (anu.action == 'demote') {
-                    hisoka.sendMessage(anu.id, { image: { url: ppuser }, mentions: [num], caption: `@${num.split('@')[0]} Demote From ${metadata.subject}` })
-              }
+© 𝐓𝐇𝐄 𝐆𝐇𝐈𝐙𝐘
+`
+                  jobotz.sendMessage(anu.id, { image: { url: pp_user }, contextInfo: { mentionedJid: [num] }, caption: anunya2 })
+                }
             }
         } catch (err) {
             console.log(err)
@@ -178,7 +179,7 @@ async function startHisoka() {
     })
 	
     // Setting
-    hisoka.decodeJid = (jid) => {
+    jobotz.decodeJid = (jid) => {
         if (!jid) return jid
         if (/:\d+@/gi.test(jid)) {
             let decode = jidDecode(jid) || {}
@@ -186,81 +187,82 @@ async function startHisoka() {
         } else return jid
     }
     
-    hisoka.ev.on('contacts.update', update => {
+    jobotz.ev.on('contacts.update', update => {
         for (let contact of update) {
-            let id = hisoka.decodeJid(contact.id)
+            let id = jobotz.decodeJid(contact.id)
             if (store && store.contacts) store.contacts[id] = { id, name: contact.notify }
         }
     })
 
-    hisoka.getName = (jid, withoutContact  = false) => {
-        id = hisoka.decodeJid(jid)
-        withoutContact = hisoka.withoutContact || withoutContact 
+    jobotz.getName = (jid, withoutContact  = false) => {
+        id = jobotz.decodeJid(jid)
+        withoutContact = jobotz.withoutContact || withoutContact 
         let v
         if (id.endsWith("@g.us")) return new Promise(async (resolve) => {
             v = store.contacts[id] || {}
-            if (!(v.name || v.subject)) v = hisoka.groupMetadata(id) || {}
+            if (!(v.name || v.subject)) v = jobotz.groupMetadata(id) || {}
             resolve(v.name || v.subject || PhoneNumber('+' + id.replace('@s.whatsapp.net', '')).getNumber('international'))
         })
         else v = id === '0@s.whatsapp.net' ? {
             id,
             name: 'WhatsApp'
-        } : id === hisoka.decodeJid(hisoka.user.id) ?
-            hisoka.user :
+        } : id === jobotz.decodeJid(jobotz.user.id) ?
+            jobotz.user :
             (store.contacts[id] || {})
             return (withoutContact ? '' : v.name) || v.subject || v.verifiedName || PhoneNumber('+' + jid.replace('@s.whatsapp.net', '')).getNumber('international')
     }
     
-    hisoka.sendContact = async (jid, kon, quoted = '', opts = {}) => {
+    jobotz.sendContact = async (jid, kon, quoted = '', opts = {}) => {
 	let list = []
 	for (let i of kon) {
 	    list.push({
-	    	displayName: await hisoka.getName(i + '@s.whatsapp.net'),
-	    	vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await hisoka.getName(i + '@s.whatsapp.net')}\nFN:${await hisoka.getName(i + '@s.whatsapp.net')}\nitem1.TEL;waid=${i}:${i}\nitem1.X-ABLabel:Ponsel\nitem2.EMAIL;type=INTERNET:okeae2410@gmail.com\nitem2.X-ABLabel:Email\nitem3.URL:https://instagram.com/cak_haho\nitem3.X-ABLabel:Instagram\nitem4.ADR:;;Indonesia;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`
+	    	displayName: await jobotz.getName(i + '@s.whatsapp.net'),
+	    	vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await jobotz.getName(i + '@s.whatsapp.net')}\nFN:${await jobotz.getName(i + '@s.whatsapp.net')}\nitem1.TEL;waid=${i}:${i}\nitem1.X-ABLabel:Ponsel\nitem2.EMAIL;type=INTERNET:okeae2410@gmail.com\nitem2.X-ABLabel:Email\nitem3.URL:https://instagram.com/cak_haho\nitem3.X-ABLabel:Instagram\nitem4.ADR:;;Indonesia;;;;\nitem4.X-ABLabel:Region\nEND:VCARD`
 	    })
 	}
-	hisoka.sendMessage(jid, { contacts: { displayName: `${list.length} Kontak`, contacts: list }, ...opts }, { quoted })
+	jobotz.sendMessage(jid, { contacts: { displayName: `${list.length} Kontak`, contacts: list }, ...opts }, { quoted })
     }
     
-    hisoka.public = true
+    jobotz.setStatus = (status) => {
+        jobotz.query({
+            tag: 'iq',
+            attrs: {
+                to: '@s.whatsapp.net',
+                type: 'set',
+                xmlns: 'status',
+            },
+            content: [{
+                tag: 'status',
+                attrs: {},
+                content: Buffer.from(status, 'utf-8')
+            }]
+        })
+        return status
+    }
+	
+    jobotz.public = true
 
-    hisoka.serializeM = (m) => smsg(hisoka, m, store)
+    jobotz.serializeM = (m) => smsg(jobotz, m, store)
 
-    hisoka.ev.on('connection.update', async (update) => {
+    jobotz.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update	    
         if (connection === 'close') {
         let reason = new Boom(lastDisconnect?.error)?.output.statusCode
-            if (reason === DisconnectReason.badSession) { console.log(`Bad Session File, Please Delete Session and Scan Again`); hisoka.logout(); }
-            else if (reason === DisconnectReason.connectionClosed) { console.log("Connection closed, reconnecting...."); startHisoka(); }
-            else if (reason === DisconnectReason.connectionLost) { console.log("Connection Lost from Server, reconnecting..."); startHisoka(); }
-            else if (reason === DisconnectReason.connectionReplaced) { console.log("Connection Replaced, Another New Session Opened, Please Close Current Session First"); hisoka.logout(); }
-            else if (reason === DisconnectReason.loggedOut) { console.log(`Device Logged Out, Please Scan Again And Run.`); hisoka.logout(); }
-            else if (reason === DisconnectReason.restartRequired) { console.log("Restart Required, Restarting..."); startHisoka(); }
-            else if (reason === DisconnectReason.timedOut) { console.log("Connection TimedOut, Reconnecting..."); startHisoka(); }
-            else if (reason === DisconnectReason.Multidevicemismatch) { console.log("Multi device mismatch, please scan again"); hisoka.logout(); }
-            else hisoka.end(`Unknown DisconnectReason: ${reason}|${connection}`)
+            if (reason === DisconnectReason.badSession) { console.log(`Bad Session File, Please Delete Session and Scan Again`); jobotz.logout(); }
+            else if (reason === DisconnectReason.connectionClosed) { console.log("Connection closed, reconnecting...."); startjobotz(); }
+            else if (reason === DisconnectReason.connectionLost) { console.log("Connection Lost from Server, reconnecting..."); startjobotz(); }
+            else if (reason === DisconnectReason.connectionReplaced) { console.log("Connection Replaced, Another New Session Opened, Please Close Current Session First"); jobotz.logout(); }
+            else if (reason === DisconnectReason.loggedOut) { console.log(`Device Logged Out, Please Scan Again And Run.`); jobotz.logout(); }
+            else if (reason === DisconnectReason.restartRequired) { console.log("Restart Required, Restarting..."); startjobotz(); }
+            else if (reason === DisconnectReason.timedOut) { console.log("Connection TimedOut, Reconnecting..."); startjobotz(); }
+            else jobotz.end(`Unknown DisconnectReason: ${reason}|${connection}`)
         }
         console.log('Connected...', update)
     })
 
-    hisoka.ev.on('creds.update', saveState)
+    jobotz.ev.on('creds.update', saveState)
 
     // Add Other
-      
-      /** Resize Image
-      *
-      * @param {Buffer} Buffer (Only Image)
-      * @param {Numeric} Width
-      * @param {Numeric} Height
-      */
-      hisoka.reSize = async (image, width, height) => {
-       let jimp = require('jimp')
-       var oyy = await jimp.read(image);
-       var kiyomasa = await oyy.resize(width, height).getBufferAsync(jimp.MIME_JPEG)
-       return kiyomasa
-      }
-      // Siapa yang cita-citanya pakai resize buat keliatan thumbnailnya
-      
 
       /**
       *
@@ -270,25 +272,25 @@ async function startHisoka() {
       * @param {*} quoted
       * @param {*} options
       */
-     hisoka.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
+     jobotz.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
       let mime = '';
       let res = await axios.head(url)
       mime = res.headers['content-type']
       if (mime.split("/")[1] === "gif") {
-     return hisoka.sendMessage(jid, { video: await getBuffer(url), caption: caption, gifPlayback: true, ...options}, { quoted: quoted, ...options})
+     return jobotz.sendMessage(jid, { video: await getBuffer(url), caption: caption, gifPlayback: true, ...options}, { quoted: quoted, ...options})
       }
       let type = mime.split("/")[0]+"Message"
       if(mime === "application/pdf"){
-     return hisoka.sendMessage(jid, { document: await getBuffer(url), mimetype: 'application/pdf', caption: caption, ...options}, { quoted: quoted, ...options })
+     return jobotz.sendMessage(jid, { document: await getBuffer(url), mimetype: 'application/pdf', caption: caption, ...options}, { quoted: quoted, ...options })
       }
       if(mime.split("/")[0] === "image"){
-     return hisoka.sendMessage(jid, { image: await getBuffer(url), caption: caption, ...options}, { quoted: quoted, ...options})
+     return jobotz.sendMessage(jid, { image: await getBuffer(url), caption: caption, ...options}, { quoted: quoted, ...options})
       }
       if(mime.split("/")[0] === "video"){
-     return hisoka.sendMessage(jid, { video: await getBuffer(url), caption: caption, mimetype: 'video/mp4', ...options}, { quoted: quoted, ...options })
+     return jobotz.sendMessage(jid, { video: await getBuffer(url), caption: caption, mimetype: 'video/mp4', ...options}, { quoted: quoted, ...options })
       }
       if(mime.split("/")[0] === "audio"){
-     return hisoka.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options}, { quoted: quoted, ...options })
+     return jobotz.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options}, { quoted: quoted, ...options })
       }
       }
 
@@ -302,7 +304,7 @@ async function startHisoka() {
       *@param [*] sections
       *@param {*} quoted
       */
-        hisoka.sendListMsg = (jid, text = '', footer = '', title = '' , butText = '', sects = [], quoted) => {
+        jobotz.sendListMsg = (jid, text = '', footer = '', title = '' , butText = '', sects = [], quoted) => {
         let sections = sects
         var listMes = {
         text: text,
@@ -311,7 +313,7 @@ async function startHisoka() {
         buttonText: butText,
         sections
         }
-        hisoka.sendMessage(jid, listMes, { quoted: quoted })
+        jobotz.sendMessage(jid, listMes, { quoted: quoted })
         }
 
     /** Send Button 5 Message
@@ -322,14 +324,14 @@ async function startHisoka() {
      * @param {*} button
      * @returns 
      */
-        hisoka.send5ButMsg = (jid, text = '' , footer = '', but = []) =>{
+        jobotz.send5ButMsg = (jid, text = '' , footer = '', but = []) =>{
         let templateButtons = but
         var templateMessage = {
         text: text,
         footer: footer,
         templateButtons: templateButtons
         }
-        hisoka.sendMessage(jid, templateMessage)
+        jobotz.sendMessage(jid, templateMessage)
         }
 
     /** Send Button 5 Image
@@ -342,23 +344,20 @@ async function startHisoka() {
      * @param {*} options
      * @returns
      */
-    hisoka.send5ButImg = async (jid , text = '' , footer = '', img, but = [], buff, options = {}) =>{
-    hisoka.sendMessage(jid, { image: img, caption: text, footer: footer, templateButtons: but, ...options })
+    jobotz.send5ButImg = async (jid , text = '' , footer = '', img, but = [], options = {}) =>{
+        let message = await prepareWAMessageMedia({ image: img }, { upload: jobotz.waUploadToServer })
+        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
+        templateMessage: {
+        hydratedTemplate: {
+        imageMessage: message.imageMessage,
+               "hydratedContentText": text,
+               "hydratedFooterText": footer,
+               "hydratedButtons": but
+            }
+            }
+            }), options)
+            jobotz.relayMessage(jid, template.message, { messageId: template.key.id })
     }
-
-      /** Send Button 5 Location
-       *
-       * @param {*} jid
-       * @param {*} text
-       * @param {*} footer
-       * @param {*} location
-       * @param [*] button
-       * @param {*} options
-       */
-      hisoka.send5ButLoc = async (jid , text = '' , footer = '', lok, but = [], options = {}) =>{
-      let bb = await hisoka.reSize(lok, 300, 150)
-      hisoka.sendMessage(jid, { location: { jpegThumbnail: bb }, caption: text, footer: footer, templateButtons: but, ...options })
-      }
 
     /** Send Button 5 Video
      *
@@ -370,9 +369,19 @@ async function startHisoka() {
      * @param {*} options
      * @returns
      */
-    hisoka.send5ButVid = async (jid , text = '' , footer = '', vid, but = [], buff, options = {}) =>{
-    let lol = await hisoka.reSize(buf, 300, 150)
-    hisoka.sendMessage(jid, { video: vid, jpegThumbnail: lol, caption: text, footer: footer, templateButtons: but, ...options })
+    jobotz.send5ButVid = async (jid , text = '' , footer = '', vid, but = [], options = {}) =>{
+        let message = await prepareWAMessageMedia({ video: vid }, { upload: jobotz.waUploadToServer })
+        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
+        templateMessage: {
+        hydratedTemplate: {
+        videoMessage: message.videoMessage,
+               "hydratedContentText": text,
+               "hydratedFooterText": footer,
+               "hydratedButtons": but
+            }
+            }
+            }), options)
+            jobotz.relayMessage(jid, template.message, { messageId: template.key.id })
     }
 
     /** Send Button 5 Gif
@@ -385,11 +394,19 @@ async function startHisoka() {
      * @param {*} options
      * @returns
      */
-    hisoka.send5ButGif = async (jid , text = '' , footer = '', gif, but = [], buff, options = {}) =>{
-    let ahh = await hisoka.reSize(buf, 300, 150)
-    let a = [1,2]
-    let b = a[Math.floor(Math.random() * a.length)]
-    hisoka.sendMessage(jid, { video: gif, gifPlayback: true, gifAttribution: b, caption: text, footer: footer, jpegThumbnail: ahh, templateButtons: but, ...options })
+    jobotz.send5ButGif = async (jid , text = '' , footer = '', gif, but = [], options = {}) =>{
+        let message = await prepareWAMessageMedia({ video: gif, gifPlayback: true }, { upload: jobotz.waUploadToServer })
+        var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
+        templateMessage: {
+        hydratedTemplate: {
+        videoMessage: message.videoMessage,
+               "hydratedContentText": text,
+               "hydratedFooterText": footer,
+               "hydratedButtons": but
+            }
+            }
+            }), options)
+            jobotz.relayMessage(jid, template.message, { messageId: template.key.id })
     }
 
     /**
@@ -401,7 +418,7 @@ async function startHisoka() {
      * @param {*} quoted 
      * @param {*} options 
      */
-    hisoka.sendButtonText = (jid, buttons = [], text, footer, quoted = '', options = {}) => {
+    jobotz.sendButtonText = (jid, buttons = [], text, footer, quoted = '', options = {}) => {
         let buttonMessage = {
             text,
             footer,
@@ -409,7 +426,7 @@ async function startHisoka() {
             headerType: 2,
             ...options
         }
-        hisoka.sendMessage(jid, buttonMessage, { quoted, ...options })
+        jobotz.sendMessage(jid, buttonMessage, { quoted, ...options })
     }
     
     /**
@@ -420,7 +437,7 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendText = (jid, text, quoted = '', options) => hisoka.sendMessage(jid, { text: text, ...options }, { quoted, ...options })
+    jobotz.sendText = (jid, text, quoted = '', options) => jobotz.sendMessage(jid, { text: text, ...options }, { quoted })
 
     /**
      * 
@@ -431,9 +448,9 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendImage = async (jid, path, caption = '', quoted = '', options) => {
+    jobotz.sendImage = async (jid, path, caption = '', quoted = '', options) => {
 	let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
-        return await hisoka.sendMessage(jid, { image: buffer, caption: caption, ...options }, { quoted })
+        return await jobotz.sendMessage(jid, { image: buffer, caption: caption, ...options }, { quoted })
     }
 
     /**
@@ -445,9 +462,9 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendVideo = async (jid, path, caption = '', quoted = '', gif = false, options) => {
+    jobotz.sendVideo = async (jid, path, caption = '', quoted = '', gif = false, options) => {
         let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
-        return await hisoka.sendMessage(jid, { video: buffer, caption: caption, gifPlayback: gif, ...options }, { quoted })
+        return await jobotz.sendMessage(jid, { video: buffer, caption: caption, gifPlayback: gif, ...options }, { quoted })
     }
 
     /**
@@ -459,9 +476,9 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendAudio = async (jid, path, quoted = '', ptt = false, options) => {
+    jobotz.sendAudio = async (jid, path, quoted = '', ptt = false, options) => {
         let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
-        return await hisoka.sendMessage(jid, { audio: buffer, ptt: ptt, ...options }, { quoted })
+        return await jobotz.sendMessage(jid, { audio: buffer, ptt: ptt, ...options }, { quoted })
     }
 
     /**
@@ -472,7 +489,7 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendTextWithMentions = async (jid, text, quoted, options = {}) => hisoka.sendMessage(jid, { text: text, mentions: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net'), ...options }, { quoted })
+    jobotz.sendTextWithMentions = async (jid, text, quoted, options = {}) => jobotz.sendMessage(jid, { text: text, contextInfo: { mentionedJid: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net') }, ...options }, { quoted })
 
     /**
      * 
@@ -482,7 +499,7 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
+    jobotz.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
         let buff = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
         let buffer
         if (options && (options.packname || options.author)) {
@@ -491,7 +508,7 @@ async function startHisoka() {
             buffer = await imageToWebp(buff)
         }
 
-        await hisoka.sendMessage(jid, { sticker: { url: buffer }, ...options }, { quoted })
+        await jobotz.sendMessage(jid, { sticker: { url: buffer }, ...options }, { quoted })
         return buffer
     }
 
@@ -503,7 +520,7 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
+    jobotz.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
         let buff = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,`[1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
         let buffer
         if (options && (options.packname || options.author)) {
@@ -512,7 +529,7 @@ async function startHisoka() {
             buffer = await videoToWebp(buff)
         }
 
-        await hisoka.sendMessage(jid, { sticker: { url: buffer }, ...options }, { quoted })
+        await jobotz.sendMessage(jid, { sticker: { url: buffer }, ...options }, { quoted })
         return buffer
     }
 	
@@ -523,7 +540,7 @@ async function startHisoka() {
      * @param {*} attachExtension 
      * @returns 
      */
-    hisoka.downloadAndSaveMediaMessage = async (message, filename, attachExtension = true) => {
+    jobotz.downloadAndSaveMediaMessage = async (message, filename, attachExtension = true) => {
         let quoted = message.msg ? message.msg : message
         let mime = (message.msg || message).mimetype || ''
         let messageType = message.mtype ? message.mtype.replace(/Message/gi, '') : mime.split('/')[0]
@@ -539,7 +556,7 @@ async function startHisoka() {
         return trueFileName
     }
 
-    hisoka.downloadMediaMessage = async (message) => {
+    jobotz.downloadMediaMessage = async (message) => {
         let mime = (message.msg || message).mimetype || ''
         let messageType = message.mtype ? message.mtype.replace(/Message/gi, '') : mime.split('/')[0]
         const stream = await downloadContentFromMessage(message, messageType)
@@ -561,8 +578,8 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.sendMedia = async (jid, path, fileName = '', caption = '', quoted = '', options = {}) => {
-        let types = await hisoka.getFile(path, true)
+    jobotz.sendMedia = async (jid, path, fileName = '', caption = '', quoted = '', options = {}) => {
+        let types = await jobotz.getFile(path, true)
            let { mime, ext, res, data, filename } = types
            if (res && res.status !== 200 || file.length <= 65536) {
                try { throw { json: JSON.parse(file.toString()) } }
@@ -582,7 +599,7 @@ async function startHisoka() {
        else if (/video/.test(mime)) type = 'video'
        else if (/audio/.test(mime)) type = 'audio'
        else type = 'document'
-       await hisoka.sendMessage(jid, { [type]: { url: pathFile }, caption, mimetype, fileName, ...options }, { quoted, ...options })
+       await jobotz.sendMessage(jid, { [type]: { url: pathFile }, caption, mimetype, fileName, ...options }, { quoted, ...options })
        return fs.promises.unlink(pathFile)
        }
 
@@ -594,7 +611,7 @@ async function startHisoka() {
      * @param {*} options 
      * @returns 
      */
-    hisoka.copyNForward = async (jid, message, forceForward = false, options = {}) => {
+    jobotz.copyNForward = async (jid, message, forceForward = false, options = {}) => {
         let vtype
 		if (options.readViewOnce) {
 			message.message = message.message && message.message.ephemeralMessage && message.message.ephemeralMessage.message ? message.message.ephemeralMessage.message : (message.message || undefined)
@@ -625,11 +642,11 @@ async function startHisoka() {
                 }
             } : {})
         } : {})
-        await hisoka.relayMessage(jid, waMessage.message, { messageId:  waMessage.key.id })
+        await jobotz.relayMessage(jid, waMessage.message, { messageId:  waMessage.key.id })
         return waMessage
     }
 
-    hisoka.cMod = (jid, copy, text = '', sender = hisoka.user.id, options = {}) => {
+    jobotz.cMod = (jid, copy, text = '', sender = jobotz.user.id, options = {}) => {
         //let copy = message.toJSON()
 		let mtype = Object.keys(copy.message)[0]
 		let isEphemeral = mtype === 'ephemeralMessage'
@@ -650,7 +667,7 @@ async function startHisoka() {
 		if (copy.key.remoteJid.includes('@s.whatsapp.net')) sender = sender || copy.key.remoteJid
 		else if (copy.key.remoteJid.includes('@broadcast')) sender = sender || copy.key.remoteJid
 		copy.key.remoteJid = jid
-		copy.key.fromMe = sender === hisoka.user.id
+		copy.key.fromMe = sender === jobotz.user.id
 
         return proto.WebMessageInfo.fromObject(copy)
     }
@@ -661,7 +678,7 @@ async function startHisoka() {
      * @param {*} path 
      * @returns 
      */
-    hisoka.getFile = async (PATH, save) => {
+    jobotz.getFile = async (PATH, save) => {
         let res
         let data = Buffer.isBuffer(PATH) ? PATH : /^data:.*?\/.*?;base64,/i.test(PATH) ? Buffer.from(PATH.split`,`[1], 'base64') : /^https?:\/\//.test(PATH) ? await (res = await getBuffer(PATH)) : fs.existsSync(PATH) ? (filename = PATH, fs.readFileSync(PATH)) : typeof PATH === 'string' ? PATH : Buffer.alloc(0)
         //if (!Buffer.isBuffer(data)) throw new TypeError('Result is not a buffer')
@@ -681,10 +698,10 @@ async function startHisoka() {
 
     }
 
-    return hisoka
+    return jobotz
 }
 
-startHisoka()
+startjobotz()
 
 
 let file = require.resolve(__filename)

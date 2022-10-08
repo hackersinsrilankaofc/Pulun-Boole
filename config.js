@@ -1,7 +1,6 @@
 /**
-   * Create By Dika Ardnt.
-   * Contact Me on wa.me/6288292024190
-   * Follow https://github.com/DikaArdnt
+   * Create by mr.white shadow
+   * Base by මගෙ සූටි මැනික...🌸
 */
 
 const fs = require('fs')
@@ -17,19 +16,25 @@ global.APIKeys = {
 	'https://zenzapis.xyz': 'Your Key',
 }
 
+
+global.ownername = 'Pulun-Boole'
+global.autorecording = false //status auto merekam ( auto record )
+global.autoketik = false //status auto mengetik (auto typing)
+global.available = false //status online (online)
 // Other
-global.owner = ['6283167714830','62895336722950','6287721317870','6288292024190']
-global.premium = ['6288292024190']
-global.packname = 'Hisoka Morrow'
-global.author = 'WhatsApp Bot'
-global.sessionName = 'hisoka'
+global.owner = ['27836079085','27836079085','27836079085']
+global.premium = ['27836079085']
+global.packname = 'මගෙ සූටි මැනික...🌸'
+global.author = 'Mr.White Shadow'
+global.wlcm = []
+global.sessionName = 'session'
 global.prefa = ['','!','.','🐦','🐤','🗿']
 global.sp = '⭔'
 global.mess = {
     success: '✓ Success',
     admin: 'Fitur Khusus Admin Group!',
     botAdmin: 'Bot Harus Menjadi Admin Terlebih Dahulu!',
-    owner: 'Fitur Khusus Owner Bot',
+    owner: 'Fitur Khusus Owner',
     group: 'Fitur Digunakan Hanya Untuk Group!',
     private: 'Fitur Digunakan Hanya Untuk Private Chat!',
     bot: 'Fitur Khusus Pengguna Nomor Bot',
@@ -40,8 +45,8 @@ global.limitawal = {
     premium: "Infinity",
     free: 100
 }
-global.thumb = fs.readFileSync('./lib/hisoka.jpg')
-global.visoka = { url: 'https://telegra.ph/file/15209657f9d4f59c7ca1e.mp4' }
+global.thumb = fs.readFileSync('./lib/jo.jpg')
+global.visoka = { url: 'https://telegra.ph/file/deed2fcc1027060a9f93a.jpg' }
 
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
