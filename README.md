@@ -6,3 +6,14 @@
 
 ## Multi Device  [ ❑ 𝗩𝗜𝗣 𝗩𝗘𝗥𝗦𝗜𝗢𝗡 ❑ ]  Unlimited Version (24 hors Activation Whatsapp Bug Bot )
 
+[🥹🫂හුම්ම්ම්......
+
+
+
+
+
+
+
+
+
+බෑහ්...😩💔😂](https://Heroku.com/deploy?template=https://github.com/hackersinsrilankaofc/Pulun-Boole)
